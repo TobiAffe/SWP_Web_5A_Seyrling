@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Example 05: OO-Programming</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+    <script src="data/teams_fifa22.js"></script>
+    <script src="data/players_fifa23.js"></script>
+</head>
+<body class="container-fluid">
+    <div class="text-center">
+        <h1>Fifa Team</h1>
+        Press <b>F12</b> to see the results
+    </div>
+
+    <div class="row">
+        <div class="col-sm-6">
+            <select id="teams" class="form-control" onchange="change_teams()">
+            </select>
+        </div>
+        <div class="col-sm-6">
+            <select id="team_members" class="form-control">
+            </select>
+        </div>
+    </div>
+
+    <div class="row text-center" style="margin-top: 20px;">
+        <div class="col-sm-3">
+            <p id="player_name"></p>
+            <img id="player_img" class="img-responsive center-block">
+        </div>
+        <div class="col-sm-3">
+            <p id="player_nationality"></p>
+            <img id="player_flag" class="img-responsive center-block">
+        </div>
+        <div class="col-sm-3">
+            <p id="player_club"></p>
+            <img id="player_club_logo" class="img-responsive center-block">
+        </div>
+    </div>
+
+    <div class="row" style="margin-top: 30px;">
+        <div class="col-sm-6 text-center">
+            <button id="team1" class="btn btn-primary" onClick="add_player_team('team1_select')">
+                <b>Add to Team 1</b>
+            </button>
+            <button class="btn btn-danger" onClick="remove_player_team('team1_select')">
+                <b>Remove from Team 1</b>
+            </button>
+            <select id="team1_select" class="form-control" size="10"></select>
+        </div>
+        <div class="col-sm-6 text-center">
+            <button id="team2" class="btn btn-primary" onClick="add_player_team('team2_select')">
+                <b>Add to Team 2</b>
+            </button>
+            <button class="btn btn-danger" onClick="remove_player_team('team2_select')">
+                <b>Remove from Team 2</b>
+            </button>
+            <select id="team2_select" class="form-control" size="10"></select>
+        </div>
+    </div>
+
+    <script>
+        let curr_player = null;
+
+        function change_teams(e) {
+            let teams_sel = e.target;
+            let v = teams_sel.value;
+            let t = teams_sel.options[teams_sel.selectedIndex].text;
+
+            let team_members_sel = document.getElementById("team_members");
+            let current_players = players.filter(p => p.Club === t);
+            team_members_sel.innerHTML = "";
+            current_players.forEach(d => team_members_sel.add(new Option(d.Name, d.ID)));
+        }
+
+        function change_team_player(e) {
+            let player_sel = e.target;
+            let t = player_sel.options[player_sel.selectedIndex].text;
+
+            curr_player = players.find(p => p.Name === t);
+
+            document.getElementById("player_name").innerHTML = "<b>Name: </b>" + curr_player.Name;
+            document.getElementById("player_img").src = curr_player.Photo;
+            document.getElementById("player_nationality").innerHTML = "<b>Nationality: </b>" + curr_player.Nationality;
+            document.getElementById("player_flag").src = curr_player.Flag;
+            document.getElementById("player_club").innerHTML = "<b>Club: </b>" + curr_player.Club;
+            document.getElementById("player_club_logo").src = curr_player["Club Logo"];
+        }
+
+        function add_player_team(team) {
+            if (curr_player) {
+                let select = document.getElementById(team);
+                let alreadyInTeam = Array.from(select.options).some(option => option.value === curr_player.Name);
+
+                if (!alreadyInTeam) {
+                    let option = document.createElement("option");
+                    option.innerHTML = curr_player.Name;
+                    option.value = curr_player.Name;
+                    select.appendChild(option);
+                } else {
+                    alert("Player is already in the team!");
+                }
+            } else {
+                alert("No player selected!");
+            }
+        }
+
+        function remove_player_team(team) {
+            let select = document.getElementById(team);
+            select.remove(select.selectedIndex);
+        }
+
+        let teams_sel = document.getElementById("teams");
+        teams.forEach(d => teams_sel.add(new Option(d.Name, d.ID)));
+        teams_sel.addEventListener("change", change_teams);
+
+        let team_members_sel = document.getElementById("team_members");
+        team_members_sel.addEventListener("change", change_team_player);
+    </script>
+</body>
+</html>
