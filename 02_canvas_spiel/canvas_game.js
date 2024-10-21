@@ -1,22 +1,52 @@
-
+let xMovement = 0;
+let yMovement = 0;
+let highScore = 0;
 
 let game = {
     canvas: document.getElementById("field"),
     start() {
+        this.speed = 2;
+        this.score = 0;
+        this.time = 0;
         console.log(this.canvas);
         this.context = this.canvas.getContext("2d");
+        this.context.font = "20px Arial";
         this.clear();
         this.interval = setInterval(game_loop, 20);
+        this.intervalNewBonus = setInterval(newBonus, 5000);
         this.intervalNewEnemy = setInterval(newEnemy, 600);
+        this.intertvalTime = setInterval(time, 1000);
         this.player = new sprite(30, 30, "", 10, 120, true, './img/face-monkey.png');
         this.enemies = [];
-        this.keyCode = -1; //when there is no key pressed
+        this.bonus = [];
         window.addEventListener('keydown', (e) => {
-            this.keyCode = e.keyCode;
+            switch (e.keyCode) {
+                case 65: // A (left)
+                    xMovement = -this.speed;
+                    break;
+                case 87: // W (up)
+                    yMovement = -this.speed;
+                    break;
+                case 68: // D (right)
+                    xMovement = this.speed;
+                    break;
+                case 83: // S (down)
+                    yMovement = this.speed;
+                    break;
+            }
         });
-
+        
         window.addEventListener('keyup', (e) => {
-            this.keyCode = -1;
+            switch (e.keyCode) {
+                case 65: // A (left)
+                case 68: // D (right)
+                    xMovement = 0;
+                    break;
+                case 87: // W (up)
+                case 83: // S (down)
+                    yMovement = 0;
+                    break;
+            }
         });
     },
     clear() {
@@ -62,21 +92,8 @@ function sprite(width, height, color, x, y, img, src) {
 
 function game_loop() {
     game.clear();
-    switch (game.keyCode) {
-        case 37: //left
-            game.player.x -= 2;
-            break;
-        case 38: //up
-            game.player.y -= 2;
-            break;
-        case 39: //right
-            game.player.x += 2;
-            break;
-        case 40: //down
-            game.player.y += 2;
-            break;
-    }
-
+    game.player.x += xMovement;
+    game.player.y += yMovement;
     game.player.redraw();
 
     game.enemies.forEach((e) => {
@@ -85,24 +102,62 @@ function game_loop() {
         e.x -= 1;
         e.y += yDelta;
         e.redraw();
-    })
+    });
+
+    game.bonus.forEach((e) => {
+        e.redraw();
+    });
+
+    game.bonus.some((e) => {
+        if (game.player.x < e.x + e.width &&
+            game.player.x + game.player.width > e.x &&
+            game.player.y < e.y + e.height &&
+            game.player.y + game.player.height > e.y) {
+            game.score += 1; 
+            game.speed += 0.5;
+            game.bonus.splice(game.bonus.indexOf(e), 1);
+            return true;    
+        }
+    });
 
     game.enemies.some((e) => {
         if (game.player.x < e.x + e.width &&
             game.player.x + game.player.width > e.x &&
             game.player.y < e.y + e.height &&
             game.player.y + game.player.height > e.y) {
+            if(game.score > highScore) {
+                highScore = game.score;
+            }
             alert("Game over");
             clearInterval(game.interval);
             clearInterval(game.intervalNewEnemy);
             return true;
         }
     });
+
+    let str = "Score: " + game.score;
+    game.context.fillText(str, 10, 30);
+
+    str = "Highscore: " + highScore;
+    game.context.fillText(str, 10, 50);
+
+    str = "Time: " + game.time;
+    game.context.fillText(str, 10, 70);
 }
 
 function newEnemy() {
     let y = Math.floor(Math.random() * 1024);
-    e = new sprite(30, 30, "blue", 1000, y, false);
+    e = new sprite(30, 30, "", 1000, y, true , './img/face-devilish.png');
     game.enemies.push(e);
+}
 
+function newBonus() {
+    let y = Math.floor(Math.random() * 1024);
+    let x = Math.floor(Math.random() * 1024);
+    e = new sprite(30, 30, "", x, y, true , './img/face-cool.png');
+    game.bonus.push(e);
+}
+
+function time() {
+    game.time += 1;
 }
