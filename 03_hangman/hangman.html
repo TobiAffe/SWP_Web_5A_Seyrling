@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Hangman Game</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="./wordlist.js"></script>
+</head>
+<body>
+    <div id="app" class="container text-center mt-5" tabindex="0">
+            <h1 v-if="cheat">{{ curr_word }}</h1>
+            <h1>{{ curr_word_update }}</h1>
+            <h1> {{ score }}</h1>
+        <img :src="img_update" class="mb-4"/>
+        <div class="mb-4">
+            <button v-for="letter in letters" :key="letter" @click="letterClick(letter)" class="btn btn-primary m-1">{{ letter }}</button>
+        </div>
+        <h5> Erratene Buchstaben </h5>
+        <span v-for="letter in letters_guessed">{{letter}}, </span> <br>
+        <button @click="newGame" class="btn btn-success">Neues Spiel</button>
+        <h2 class="mt-5">Highscore-Tabelle</h2>
+        <ul class="list-group">
+            <li v-for="(entry, index) in highscores" :key="index" class="list-group-item">
+                {{ entry.name }}: {{ entry.score }}, word: {{ entry.word }}
+            </li>
+        </ul>
+    </div>
+
+    <script>
+        const { createApp } = Vue
+        createApp({ 
+            data() {
+                return {
+                    cheat: false,
+                    letters: Array.from(Array(26)).map((e, i) => String.fromCharCode(i + 65).toLowerCase()),
+                    wordlist: words,
+                    curr_word: '',
+                    letters_guessed: [],
+                    level: 0,
+                    score: 0,
+                    highscores: [],
+                }
+            },
+            computed: {
+                curr_word_update() {
+                    return this.curr_word.split('').map(letter => 
+                        this.letters_guessed.includes(letter) ? letter : '_'
+                    ).join(' ');
+                },
+                img_update() {
+                    return `./hangman/${this.level}.jpg`;
+                }
+            },
+            methods: {
+                letterClick(letter) {
+                    if (!this.letters_guessed.includes(letter)) {
+                        letter = letter.toLowerCase();
+                        this.letters_guessed.push(letter);
+                        this.letters = this.letters.filter(l => l !== letter);
+                        if(!this.curr_word_update.includes('_')) {
+                            alert('You won!');
+                            this.saveHighscore();
+                            this.newGame();
+                        } else if (!this.curr_word.includes(letter)) {
+                            this.level++;
+                            if (this.level >= 10) {
+                                alert('You lost!');   
+                                this.newGame();
+                            }
+                        }
+                    }
+                },
+                newGame() {
+                    this.curr_word = this.wordlist[Math.floor(Math.random() * this.wordlist.length)];
+                    this.letters_guessed = [];
+                    this.letters = Array.from(Array(26)).map((e, i) => String.fromCharCode(i + 65).toLowerCase());
+                    this.level = 0;
+                    this.score = 0;
+                    this.cheat = false;
+                },
+                updateScore() {
+                    this.score += 1;
+                },
+                handleKeydown(event) {
+                    if (event.key === 'Enter') {
+                        this.cheat = true;
+                    }
+                },
+                saveHighscore() {
+                    const name = prompt("Enter your name:");
+                    if (name) {
+                        const newEntry = { name: name, score: this.score, date: new Date(), word: this.curr_word };
+                        this.highscores.push(newEntry);
+                        localStorage.setItem('highscores_hang', JSON.stringify(this.highscores));
+                    }
+                },
+                loadHighscores() {
+                    const storedHighscores = localStorage.getItem('highscores_hang');
+                    if (storedHighscores) {
+                        this.highscores = JSON.parse(storedHighscores).sort((a, b) => a.score - b.score);
+                    }
+                }
+            },
+            mounted() {
+                this.newGame();
+                this.loadHighscores();
+                setInterval(this.updateScore, 1000);
+                window.addEventListener('keydown', this.handleKeydown);
+            },
+        }).mount('#app')
+    </script>
+</body>
+</html>
