@@ -32,11 +32,16 @@ public class Playground extends Observable {
     }
 
     public Field getField(int row, int col) {
-    	return fields[row][col];
+        if (isValidPosition(row, col)) {
+            return fields[row][col];
+        }
+        return null;
     }
 
     public void setField(int row, int col, Field field) {
-    	fields[row][col] = field;
+        if (isValidPosition(row, col)) {
+            fields[row][col] = field;
+        }
     }
 
     public boolean isValidPosition(int row, int col) {
@@ -65,6 +70,19 @@ public class Playground extends Observable {
 
         setChanged();
         notifyObservers(field);
+    }
+
+    public boolean allShipsSunk() {
+        if (ships == null || ships.isEmpty()) {
+            return false; 
+        }
+
+        for (Ship ship : ships) {
+            if (!ship.isSunk()) {
+                return false;
+            }
+        }
+        return true;
     }
 
     public void placeShips() {

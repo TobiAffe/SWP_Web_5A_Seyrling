@@ -63,6 +63,14 @@ public class App extends Application {
     private void initShips() {
         ShipFactory.placeShipsRandomly(playground);
     }
+    
+    public void disableAllButtons() {
+        for (int row = 0; row < 10; row++) {
+            for (int col = 0; col < 10; col++) {
+                gridButtons[row][col].setDisable(true);
+            }
+        }
+    }
 
     public static void main(String[] args) {
         launch();

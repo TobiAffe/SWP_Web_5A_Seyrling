@@ -43,6 +43,10 @@ public class GameController implements Observer {
             app.updateBoard(row, col, 'W'); // Wasser anzeigen
         }
 
+        if (playground.allShipsSunk()) {
+            app.updateStatus("Alle Schiffe wurden versenkt!");
+            app.disableAllButtons(); 
+        }
     }
 
 
