@@ -1,0 +1,10 @@
+INDEX VERSION 1.131+C:\Users\tseyr\OneDrive\Desktop\HTL Anichstrasse\5AHWII\SWP\SWP_Web\Eclipse\.metadata\.plugins\org.eclipse.jdt.core
+3054592958.index
+2835236013.index
+2433310287.index
+1272913746.index
+3177251391.index
+3562951256.index
+3472325613.index
+2763017084.index
+1865797976.index
